@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import mongoose from "mongoose"
 import {User,Cohort} from "./User.js"
+import jwt from "jsonwebtoken";
 
 const app=express()
 app.use(bodyParser.json());
@@ -26,6 +27,10 @@ app.post("/User",(req,res)=>{
         name:req.body.name,
         img:req.body.img
     }
+    const token = jwt.sign({ email:user.email }, "secreat123",{
+      expiresIn:"60"
+    });
+
     new User(user,(err,data)=>{
         if(err){
             res.status(401).send("User Information not send")
@@ -35,6 +40,9 @@ app.post("/User",(req,res)=>{
         res.status(200).send(data)
     }
     }).save()
+		res.status(201).json({email:user.email,token:token,message: "User created successfully"});
+
+
 })
 app.get("/GetUser",(req,res)=>{
     User.find((err,data)=>{
